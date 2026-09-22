@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "p2i"
+version = "0.3.1"
+description = "Local-first PyTorch model inspection and faithful computation visualization"
+requires-python = ">=3.11"
+dependencies = ["torch>=2.5", "pydantic>=2.7,<3", "fastapi>=0.110", "uvicorn>=0.27"]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "httpx>=0.27"]
+
+[project.scripts]
+p2i = "p2i.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"p2i.server" = ["static/*", "static/assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
