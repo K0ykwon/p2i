@@ -1,8 +1,18 @@
 # p2i — PyTorch to interactive inspection
 
+[![CI](https://github.com/K0ykwon/p2i/actions/workflows/ci.yml/badge.svg)](https://github.com/K0ykwon/p2i/actions/workflows/ci.yml)
+
 A local-first research prototype: **instantiated `nn.Module` + example inputs → analysis → typed Model IR → local browser explorer**.
 
 The Phase 1 analyzer inspects the actual supplied model. Phase 2 adds deterministic architecture editing through an optional Harness. Phase 3 adds an explicit Skill Registry, external-agent tools and bounded candidate validation. P2I does **not** autonomously recognize semantic architectures, generate code, discover skills, integrate AI, parse papers or fetch repositories. Bundled neural networks are ordinary examples, not visualization templates. Candidate source is deliberately supplied by the caller; no skill dependency is automatically installed.
+
+## Interactive computation microscope
+
+Run `p2i demo transformer --edit` and open the printed local URL. Start with **Explore**, drill into a module, then open **Runtime**. Playback follows observed ATen operations, highlighting inputs, the active operation and outputs. Pause to inspect or drag nodes. Export/FX graphs remain static evidence.
+
+**Computation** focuses on one operation and at most six neighbors at readable scale. **Edit → Build & Re-trace → Compare** presents the previous and current successful observations, constructor changes, aligned output shapes/samples and added/removed dependency paths. Proposed edits do not replace observed results. Enable bounded CPU capture explicitly to see scalar, vector or matrix/slice values; uncaptured coordinates remain unavailable.
+
+See [visual conventions and limitations](docs/COMPUTATION_EXPLORER.md), [the Transformer showcase workflow](docs/SHOWCASE.md), [performance and study protocols](docs/RESEARCH_EVALUATION.md), and [development/test instructions](CONTRIBUTING.md). Node.js is required to develop/build the frontend, not to install a prebuilt wheel. Release artifacts are built manually through GitHub Actions; no package publishing is enabled.
 
 ## Phase 2: edit, validate, build and re-trace
 

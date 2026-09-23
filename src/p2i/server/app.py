@@ -24,6 +24,14 @@ def create_app(ir):
     async def inspection():return harness.inspection.as_dict() if harness and harness.inspection else {'tensors':{},'operations':{}}
     @app.get('/api/harness')
     async def harness_state():return state()
+    @app.get('/api/comparison')
+    async def comparison():
+        if not harness or not harness.previous_observation:return {'available':False}
+        from p2i.harness.comparison import compare_observations
+        with harness._lock:
+            before=harness.previous_observation
+            after={'model':harness.latest_ir.model_dump(mode='json'),'revision':harness.observed_revision,'configuration':harness.observed_configuration,'inspection':harness.inspection.as_dict() if harness.inspection else {'tensors':{},'operations':{}}}
+            return {'available':True,'before':before,'after':after,'diff':compare_observations(before,after)}
     @app.post('/api/harness/{command}')
     async def command(command:str,request:Request):
         if not harness:raise HTTPException(409,'Editing requires a live Harness session. Use p2i demo transformer --edit.')

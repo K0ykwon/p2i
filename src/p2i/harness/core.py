@@ -33,6 +33,7 @@ class Harness(SkillHarnessMixin):
         self.observed_configuration={}
         if ir and self._model is not None:self._record_configuration(self._model,ir)
         self.last_validation=None;self.last_weights=None;self.last_comparison=None;self.inspection=None
+        self.previous_observation=None
         self._revisions={0:self._arch.model_copy(deep=True)};self._history=[];self._undo=[];self._redo=[];self._action_counter=0
     def _record_configuration(self,model,ir):
         observed={m.qualified_name:m.id for m in ir.modules};result={}
@@ -223,6 +224,8 @@ class Harness(SkillHarnessMixin):
             observed=trace(model,example_inputs=self._args,example_kwargs=self._kwargs,inspection=inspection,**trace_options)
             if any(a.status!='success' for a in observed.metadata.analysis if a.technique in ('runtime_hooks','runtime_dispatch')):raise ValueError('Re-trace did not complete runtime capture; latest observation retained')
             old=self.latest_ir
+            if old:
+                self.previous_observation={'model':old.model_dump(mode='json'),'revision':self.observed_revision,'configuration':deepcopy(self.observed_configuration),'inspection':self.inspection.as_dict() if self.inspection else {'tensors':{},'operations':{}}}
             self.last_comparison=self._compare(old,observed) if old else None
             self.inspection=inspection
             self._record_configuration(model,observed)

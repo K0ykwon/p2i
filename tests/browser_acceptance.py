@@ -34,3 +34,5 @@ if __name__=='__main__':
  for name in ('transformer','cnn','mlp'):run(name,True,'phase2.mjs')
  run('transformer',True,'phase3.mjs')
  for name in ('transformer','cnn','mlp'):run(name,True,'ux.mjs')
+ subprocess.run([sys.executable,'scripts/benchmark_explorer.py'],cwd=ROOT,check=True,stdout=subprocess.DEVNULL)
+ run('transformer',True,'microscope.mjs')
