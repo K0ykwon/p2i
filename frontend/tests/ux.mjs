@@ -44,12 +44,12 @@ try{
  await expect(page.locator('.sample-readout')).toHaveCount(0);
  const samples=await (await page.request.get(new URL('/api/inspection',page.url()).href)).json();
  const sampleButtons=await page.locator('.heatmap').first().getByRole('button').all();
- if(sampleButtons.length>256)throw Error('Tensor heatmap rendering exceeds cap');
+ if(sampleButtons.length>1024)throw Error('Tensor heatmap rendering exceeds cap');
  if(!Object.values(samples.tensors).some(s=>s.grid?.values?.length))throw Error('No observed whole-tensor grids captured');
  if(Object.values(samples.tensors).some(s=>s.values?.length))throw Error('Raw prefix values were retained in the normal capture path');
  if(model==='transformer'){
   // Keep the outer map stable when a plane changes from 32×32 to 32×16;
-  // the corresponding bounded 16×16 / 16×8 tiles must resize inside it.
+  // render all 1,024 / 512 positions and resize their cells inside it.
   const geometry=await page.evaluate(()=>{
    const host=document.createElement('div');host.style.width='350px';document.body.append(host);
    function measure(rows,columns){
@@ -63,7 +63,7 @@ try{
     const result={width:outer.width,height:outer.height,cellWidth:inner.width,cellHeight:inner.height};
     map.remove();return result;
    }
-   const square=measure(16,16),tall=measure(16,8);host.remove();return {square,tall};
+   const square=measure(32,32),tall=measure(32,16);host.remove();return {square,tall};
   });
   if(Math.abs(geometry.square.width-geometry.tall.width)>1||Math.abs(geometry.square.height-geometry.tall.height)>1||
      geometry.tall.cellWidth<geometry.square.cellWidth*1.8)throw Error('Rectangular grid changed outer footprint or did not resize its cells');

@@ -35,18 +35,17 @@ operators stay fused. No semantic attention or residual computation is invented.
 
 ## Tensor values
 
-Enable **Capture bounded CPU tensor samples on re-trace** in Edit and run **Build &
-Re-trace**. The backend's existing opt-in bounds remain unchanged. The first captured
-input/output in an operation can show a heatmap; other tensors retain compact shape
-buttons and their samples can be inspected in the tensor panel.
-
-A complete rank-2 tensor is labeled Complete matrix only if every element is present
-and it has at most 16 columns. Otherwise cells are explicitly labeled flat-order values
-or a flat prefix sample. A prefix is never represented as a complete attention map.
-Hover/focus gives the recorded numerical value. Statistics are the backend's tensor
-statistics; colors use the displayed sample's symmetric scale. At most 64 cells render.
-Unavailable values have an explicit omitted/not-captured explanation. Static graphs
-without runtime samples display metadata without invented values.
+Enable **Capture bounded whole-tensor CPU heatmaps on re-trace** in Edit and run
+**Build & Re-trace**. Captured operation inputs and outputs can show a heatmap;
+others retain shape metadata. An eligible rank-2 plane up to 32×32 has one colored
+cell per element, so a 32×32 plane has smaller cells than a 16×16 plane in the
+same footprint. Above the grid limit each cell is a regional mean, with leading
+axes averaged for higher ranks. A saved prefix from an older sidecar is explicitly
+labeled as such and never represented as a complete matrix. Hover/focus can reveal
+a cell's numerical value without showing numbers throughout the grid. Statistics
+refer to the full eligible tensor; colors use the displayed grid's symmetric scale.
+Unavailable tensors have an explicit omission message. Static graphs without runtime
+capture display metadata without invented values.
 
 ## Runtime
 

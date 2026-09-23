@@ -4,7 +4,7 @@ import torch
 
 class RuntimeInspection:
     def __init__(self,*,max_tensors=64,max_elements=4096,sample_size=0,max_operations=256,
-                 max_summary_elements=262144,grid_size=16):
+                 max_summary_elements=262144,grid_size=32):
         if not (0<=max_tensors<=256 and 0<=max_elements<=16384 and 0<=sample_size<=64 and
                 0<=max_operations<=1024 and 0<=max_summary_elements<=1048576 and 1<=grid_size<=32):
             raise ValueError('Inspection limits exceed hard safety caps')
@@ -47,8 +47,8 @@ class RuntimeInspection:
                 else:
                     filled=filled.reshape(plane.shape[-2:])
                     coverage=valid.float().reshape(plane.shape[-2:])
-                # Downsample both axes by the same factor. A 32x16 plane
-                # becomes 16x8 rather than an apparently square 16x16 grid.
+                # Preserve every position while the final two axes fit in the
+                # grid. Only larger planes need bounded regional means.
                 scale=max(1,filled.shape[0]/self.grid_size,filled.shape[1]/self.grid_size)
                 height=max(1,min(self.grid_size,round(filled.shape[0]/scale)))
                 width=max(1,min(self.grid_size,round(filled.shape[1]/scale)))
@@ -67,7 +67,7 @@ class RuntimeInspection:
                     'reduced_axes':list(range(max(0,value.ndim-2))),
                     'finite_elements':int(finite.sum().item()),
                 }
-                entry['message']='Whole-tensor mean grid; raw tensor values were not retained.'
+                entry['message']='Bounded whole-tensor grid; original activation tensor was not retained.'
         except Exception as exc:entry['message']=f'Grid unavailable: {type(exc).__name__}'
     def operation(self,oid,func,args,kwargs):
         if len(self.operations)>=self.max_operations:return

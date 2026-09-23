@@ -5,7 +5,7 @@ Run `p2i demo transformer --edit`. The bundled offline model is ordinary PyTorch
 1. **Explore** the root, `blocks`, then `blocks.0`. Show the real hierarchy, origin badges and tensor routes.
 2. Open **Runtime**. Play a few steps, pause, advance once and restart. Show the recorded operation/call IDs and amber input/output emphasis. This animation does not encode measured time.
 3. Open **Computation**. Choose a reshape or addition actually present in the selector; inspect its dimensions and connected neighbors. Drag a node and return to it. Do not expand a fused SDPA node into unobserved internals.
-4. In **Edit**, enable bounded whole-tensor CPU heatmaps and **Build & Re-trace**. Return to an early operation. Compare the input and output rectangular grids, their axis aggregation labels and signed colour scale. No raw activations are stored in the normal capture path.
+4. In **Edit**, enable bounded whole-tensor CPU heatmaps and **Build & Re-trace**. Return to an early operation. Compare the input and output rectangular grids, their axis aggregation labels and signed colour scale. The normal capture stores a bounded numerical grid, which equals individual input values for a fitting 2D plane; it does not retain the original activation tensor.
 5. At root, select `norm`. In **Edit**, change `eps` to `0.001`, **Preview & validate**, **Commit edit**, then **Build & Re-trace**.
 6. Open **Compare**. Show observed r0/r1, actual constructor changes, shape/grid changes and the aligned operation microscopes. A safe epsilon edit need not change operation counts or shapes; unchanged evidence is informative.
 

@@ -34,14 +34,16 @@ def test_leading_axes_are_explicitly_averaged_and_odd_sized_tiles_cover_every_el
 
 
 def test_rectangular_source_preserves_axis_ratio_in_bounded_grid():
-    square = inspect(torch.ones(32, 32))['grid']
+    square = inspect(torch.arange(32 * 32, dtype=torch.float32).reshape(32, 32))['grid']
     tall = inspect(torch.arange(32, dtype=torch.float32)[:, None].expand(32, 16))['grid']
     wide = inspect(torch.ones(16, 32))['grid']
-    assert square['shape'] == [16, 16]
-    assert tall['shape'] == [16, 8]
-    assert wide['shape'] == [8, 16]
-    assert tall['values'][0] == [0.5] * 8
-    assert tall['values'][-1] == [30.5] * 8
+    assert square['shape'] == [32, 32]
+    assert square['values'][0][0] == 0.0
+    assert square['values'][-1][-1] == 1023.0
+    assert tall['shape'] == [32, 16]
+    assert wide['shape'] == [16, 32]
+    assert tall['values'][0] == [0.0] * 16
+    assert tall['values'][-1] == [31.0] * 16
     assert tall['finite_elements'] == 32 * 16
 
 

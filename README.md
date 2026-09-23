@@ -10,7 +10,7 @@ The Phase 1 analyzer inspects the actual supplied model. Phase 2 adds determinis
 
 Run `p2i demo transformer --edit` and open the printed local URL. Start with **Explore**, drill into a module, then open **Runtime**. Playback follows observed ATen operations, highlighting inputs, the active operation and outputs. Pause to inspect or drag nodes. Export/FX graphs remain static evidence.
 
-**Computation** focuses on one operation and at most six neighbors at readable scale. **Edit → Build & Re-trace → Compare** presents the previous and current successful observations, constructor changes, aligned output shapes/heatmaps and added/removed dependency paths. Proposed edits do not replace observed results. Enable opt-in CPU heatmaps to display a bounded whole-tensor mean grid; raw values are not retained. Heatmaps are unavailable above the configured size limit.
+**Computation** focuses on one operation and at most six neighbors at readable scale. **Edit → Build & Re-trace → Compare** presents the previous and current successful observations, constructor changes, aligned output shapes/heatmaps and added/removed dependency paths. Proposed edits do not replace observed results. Enable opt-in CPU heatmaps to display a bounded whole-tensor grid: dimensions up to 32×32 retain one colored cell per element, while larger axes are pooled. The inspection sidecar stores bounded numerical cells, not the original activation tensor. Heatmaps are unavailable above the configured size limit.
 
 ![Observed TinyTransformer layer-normalization input and output represented as aligned rectangular mean heatmaps](docs/tensor-heatmap-flow.png)
 
