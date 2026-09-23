@@ -5,7 +5,7 @@ from .serialization.json import load
 from .architecture import ArchitectureIR, build, register_module_adapter, ModuleAdapter, ModuleAdapterRegistry
 from .harness import Harness
 
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 
 def serve(ir, *, host="127.0.0.1", port=8000):
     """Block while serving the local UI and read-only API."""

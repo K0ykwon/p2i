@@ -8,3 +8,43 @@
 .secondary-tensor>button{padding:9px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;box-shadow:none}.secondary-tensor strong{margin:0;font-size:12px}.secondary-tensor small{margin-left:auto}.operation-explainer .tensor-stage:not(.secondary-tensor)>button{border-color:#a8cdce}.operation-flow .operation-symbol{align-self:flex-start;margin-top:46px}
 .parent-operations{padding:18px;margin:18px 0;background:#f0f5f8;border-radius:10px;border:1px dashed #c0d4dc}.parent-operations strong{font-size:12px}.parent-operations p{font-size:11px;line-height:1.6;color:#617e8d}.parent-operations button{margin:4px 6px 0 0;font:11px ui-monospace,monospace}
 .op-node{cursor:grab}.op-node.dragging{cursor:grabbing}
+/* Observed execution: teal selection; amber active execution; dotted static edges. */
+.executing .runtime-inactive{opacity:.38}
+.executing .runtime-active rect{stroke:#b66b16;stroke-width:3;fill:#fff4dc}
+.executing .flow-unrelated{opacity:.15}
+.executing .flow-input path:last-of-type,.executing .flow-output path:last-of-type{stroke:#b66b16;stroke-width:3;stroke-dasharray:7 5;animation:tensor-flow 1s linear infinite;animation-play-state:paused}
+.executing.playing.phase-0 .flow-input path:last-of-type,.executing.playing.phase-2 .flow-output path:last-of-type{animation-play-state:running}
+.executing.phase-0 .flow-output,.executing.phase-2 .flow-input{opacity:.35}
+@keyframes tensor-flow{to{stroke-dashoffset:-24}}
+@media(prefers-reduced-motion:reduce){.executing .graph-edge path{animation:none!important}*{scroll-behavior:auto!important}}
+.slice-controls{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.slice-controls label{font-size:11px;display:grid;gap:4px}.slice-controls input{width:65px;padding:4px}
+.heatmap button:disabled{background:repeating-linear-gradient(45deg,#eee,#eee 3px,#fafafa 3px,#fafafa 6px)!important;opacity:.6}
+.tensor-relations{display:flex;gap:4px;flex-wrap:wrap;padding:6px}.tensor-relations button{font-size:10px;padding:3px}
+.microscope-provenance{font-size:11px;color:#65758a;overflow-wrap:anywhere}.runtime-controls{flex-wrap:wrap}.runtime-controls label{display:flex;gap:8px;align-items:center}
+.comparison-metrics{display:flex;gap:16px;flex-wrap:wrap;padding:16px;background:#eef5f4;border-radius:10px}
+.comparison-panes{display:grid;grid-template-columns:1fr;gap:24px}.comparison-side{min-width:0;border-left:3px solid #708c93;padding-left:12px}.comparison-side:last-child{border-color:#b66b16}
+.configuration-change{display:flex;gap:12px;align-items:center;border-bottom:1px solid #dae2e9;overflow:auto}.configuration-change pre{font-size:11px;min-width:140px}.execution-diff>p{color:#64748b;font-size:12px}.execution-diff details{margin:14px 0}.execution-diff pre{max-height:300px;overflow:auto}
+@media(min-width:2200px){.comparison-panes{grid-template-columns:1fr 1fr}}
+.execution-timeline{display:flex;gap:8px;overflow:auto;padding:12px 0;list-style:none}.execution-timeline button{min-width:145px;display:grid;gap:6px;text-align:left;font-size:12px}.execution-timeline small{font-size:10px;color:#65758a}.execution-timeline [aria-current=step]{border:2px solid #b66b16;background:#fff4dc}
+.tensor-stage.tensor-active{outline:2px solid #b66b16;background:#fff8eb;border-radius:10px}.static-node rect{stroke-dasharray:5 3}
+/* Compact evidence view: both tensors align around their actual observed operation. */
+.operation-explainer .operation-flow{display:grid;grid-template-columns:minmax(0,1fr) 18px minmax(72px,96px) 18px minmax(0,1fr);gap:9px;align-items:center;max-width:1000px;margin-inline:auto;overflow:visible}
+.operation-explainer .operation-tensors{min-width:0;max-width:none;width:100%;align-self:stretch}
+.operation-explainer .operation-symbol{align-self:center;margin:0;min-width:0;padding:14px 5px;width:100%;box-sizing:border-box}
+.operation-explainer .flow-arrow{justify-self:center}
+.operation-explainer .tensor-stage{min-width:0}
+.operation-explainer .tensor-sample{box-sizing:border-box;width:100%;padding:13px;overflow:hidden}
+.tensor-sample .sample-caption{font-size:11px;margin-bottom:5px;align-items:center}
+.tensor-sample .sample-caption strong{color:#173c48;font-size:12px}
+.tensor-sample .grid-description{font-size:10px;line-height:1.5;margin:5px 0 12px;color:#597783}
+.tensor-sample .heatmap{width:100%;max-width:350px;gap:2px;margin-inline:auto}
+.tensor-sample .heatmap-strip{height:36px}
+.tensor-sample .heatmap-scalar{width:42px;height:42px;margin-left:0}
+.tensor-sample .heatmap-cell{width:100%;height:100%;padding:0;min-width:0;border:0;border-radius:2px;box-shadow:inset 0 0 0 1px #24504a0e;cursor:crosshair}
+.tensor-sample .heatmap-cell:disabled{opacity:1;background:repeating-linear-gradient(45deg,#eceff0,#eceff0 3px,#fafafa 3px,#fafafa 6px)!important;cursor:default}
+.tensor-sample .heatmap-legend{max-width:350px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:6px;margin:10px auto 0;color:#58737a;font:10px ui-monospace,monospace}
+.tensor-sample .heatmap-gradient{height:8px;border-radius:6px;background:linear-gradient(90deg,#c06d40,#f5f9f8 50%,#10897d)}
+.tensor-sample .heatmap-metadata{font-size:10px;color:#54727d;border-top:1px solid #e1ebeb;padding-top:8px;margin-top:12px}
+.tensor-sample .heatmap-metadata summary{cursor:pointer}
+.tensor-sample .heatmap-metadata p{margin-top:8px}
+@media(max-width:980px){.operation-explainer .operation-flow{grid-template-columns:minmax(0,1fr);justify-items:center}.operation-explainer .operation-tensors{max-width:440px}.operation-explainer .flow-arrow{transform:rotate(90deg)}.operation-explainer .operation-symbol{max-width:96px}}

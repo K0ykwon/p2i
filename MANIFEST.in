@@ -1,0 +1,8 @@
+include LICENSE README.md CONTRIBUTING.md requirements-ci.txt
+recursive-include frontend *.json *.ts *.tsx *.css *.html *.mjs
+prune frontend/node_modules
+prune frontend/.unit
+recursive-include src/p2i/server/static *
+recursive-include tests *.py
+recursive-include scripts *.py
+recursive-include docs *.md

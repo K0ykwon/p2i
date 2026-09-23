@@ -1,6 +1,6 @@
 {
   "name": "p2i-explorer",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,8 @@
     "test:e2e": "node tests/explorer.mjs",
     "test:phase2": "node tests/phase2.mjs",
     "test:phase3": "node tests/phase3.mjs",
-    "test:ux": "node tests/ux.mjs"
+    "test:ux": "node tests/ux.mjs",
+    "test:unit": "tsc -p tsconfig.tests.json && node --test tests/*.test.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",

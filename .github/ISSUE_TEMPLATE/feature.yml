@@ -1,0 +1,12 @@
+name: Feature request
+description: Propose an exploration or analysis improvement
+body:
+  - type: textarea
+    attributes:
+      label: User task and proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Required evidence
+      description: What observed runtime information would support this behavior?

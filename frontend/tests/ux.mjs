@@ -33,19 +33,47 @@ try{
  await page.getByRole('button',{name:'Raw graph',exact:true}).click();
  await expect(page.getByRole('button',{name:'Focused view',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Focused view',exact:true}).click();
- // Opt-in values on the real model. No sample values are mocked.
+ // Opt-in grids summarize the actual observed tensors, without storing raw values.
  await page.getByRole('button',{name:'Edit',exact:true}).click();
- await page.getByLabel('Capture bounded CPU tensor samples on re-trace (opt-in)').check();
+ await page.getByLabel('Capture bounded whole-tensor CPU heatmaps on re-trace (opt-in)').check();
  await page.getByRole('button',{name:'Build & Re-trace',exact:true}).click();
  await expect(page.locator('.validation-result')).toContainText('Validation passed',{timeout:30000});
  await page.getByRole('button',{name:'Computation',exact:true}).click();
  await expect(page.locator('.heatmap').first()).toBeVisible();
- await page.locator('.heatmap button').first().hover();
- await expect(page.locator('.sample-readout').first()).toContainText('flat[0]');
+ await expect(page.locator('.heatmap button').first()).toHaveAttribute('aria-label',/Grid row 1 column 1/);
+ await expect(page.locator('.sample-readout')).toHaveCount(0);
  const samples=await (await page.request.get(new URL('/api/inspection',page.url()).href)).json();
  const sampleButtons=await page.locator('.heatmap').first().getByRole('button').all();
- if(sampleButtons.length>64)throw Error('Tensor sample rendering exceeds cap');
- if(!Object.values(samples.tensors).some(s=>s.values?.length))throw Error('No real samples captured');
+ if(sampleButtons.length>1024)throw Error('Tensor heatmap rendering exceeds cap');
+ if(!Object.values(samples.tensors).some(s=>s.grid?.values?.length))throw Error('No observed whole-tensor grids captured');
+ if(Object.values(samples.tensors).some(s=>s.values?.length))throw Error('Raw prefix values were retained in the normal capture path');
+ if(model==='transformer'){
+  // Keep the outer map stable when a plane changes from 32×32 to 32×16;
+  // render all 1,024 / 512 positions and resize their cells inside it.
+  const geometry=await page.evaluate(()=>{
+   const host=document.createElement('div');host.style.width='350px';document.body.append(host);
+   function measure(rows,columns){
+    const map=document.createElement('div');map.className='tensor-sample';host.append(map);
+    const grid=document.createElement('div');grid.className='heatmap';
+    grid.style.gridTemplateColumns=`repeat(${columns},minmax(0,1fr))`;
+    grid.style.gridTemplateRows=`repeat(${rows},minmax(0,1fr))`;
+    grid.style.aspectRatio=`${columns} / ${Math.min(columns,rows)}`;
+    map.append(grid);const cell=document.createElement('button');cell.className='heatmap-cell';grid.append(cell);
+    const outer=grid.getBoundingClientRect(),inner=cell.getBoundingClientRect();
+    const result={width:outer.width,height:outer.height,cellWidth:inner.width,cellHeight:inner.height};
+    map.remove();return result;
+   }
+   const square=measure(32,32),tall=measure(32,16);host.remove();return {square,tall};
+  });
+  if(Math.abs(geometry.square.width-geometry.tall.width)>1||Math.abs(geometry.square.height-geometry.tall.height)>1||
+     geometry.tall.cellWidth<geometry.square.cellWidth*1.8)throw Error('Rectangular grid changed outer footprint or did not resize its cells');
+  const cards=await page.locator('.operation-flow .tensor-stage').all();
+  if(cards.length>=2){
+   const left=await cards[0].boundingBox(),right=await cards.at(-1).boundingBox();
+   if(!left||!right||Math.abs(left.y-right.y)>8||left.x>=right.x)throw Error('Input/output tensor cards are misaligned');
+  }
+  await page.locator('.operation-flow').screenshot({path:'../docs/tensor-heatmap-flow.png'});
+ }
  await page.screenshot({path:`../docs/ux-${model}-compute.png`,fullPage:true});
  await page.getByRole('button',{name:'Runtime',exact:true}).click();
  await expect(page.locator('.execution-active')).toHaveCount(1);
@@ -60,5 +88,5 @@ try{
  await page.getByRole('button',{name:'Pause',exact:true}).click();
  await page.screenshot({path:`../docs/ux-${model}-runtime.png`,fullPage:true});
  if(errors.length)throw Error(errors.join('\n'));
- console.log(`PASS UX ${model}: observed module routes, <=7 node neighborhood, readable fit, raw mode, operation explanations, real tensor samples, synchronized recorded playback`);
+ console.log(`PASS UX ${model}: observed module routes, <=7 node neighborhood, readable fit, raw mode, operation explanations, whole-tensor grids, synchronized recorded playback`);
 }finally{await browser.close()}
