@@ -48,6 +48,25 @@ try{
  if(!Object.values(samples.tensors).some(s=>s.grid?.values?.length))throw Error('No observed whole-tensor grids captured');
  if(Object.values(samples.tensors).some(s=>s.values?.length))throw Error('Raw prefix values were retained in the normal capture path');
  if(model==='transformer'){
+  // Keep the outer map stable when a plane changes from 32×32 to 32×16;
+  // the corresponding bounded 16×16 / 16×8 tiles must resize inside it.
+  const geometry=await page.evaluate(()=>{
+   const host=document.createElement('div');host.style.width='350px';document.body.append(host);
+   function measure(rows,columns){
+    const map=document.createElement('div');map.className='tensor-sample';host.append(map);
+    const grid=document.createElement('div');grid.className='heatmap';
+    grid.style.gridTemplateColumns=`repeat(${columns},minmax(0,1fr))`;
+    grid.style.gridTemplateRows=`repeat(${rows},minmax(0,1fr))`;
+    grid.style.aspectRatio=`${columns} / ${Math.min(columns,rows)}`;
+    map.append(grid);const cell=document.createElement('button');cell.className='heatmap-cell';grid.append(cell);
+    const outer=grid.getBoundingClientRect(),inner=cell.getBoundingClientRect();
+    const result={width:outer.width,height:outer.height,cellWidth:inner.width,cellHeight:inner.height};
+    map.remove();return result;
+   }
+   const square=measure(16,16),tall=measure(16,8);host.remove();return {square,tall};
+  });
+  if(Math.abs(geometry.square.width-geometry.tall.width)>1||Math.abs(geometry.square.height-geometry.tall.height)>1||
+     geometry.tall.cellWidth<geometry.square.cellWidth*1.8)throw Error('Rectangular grid changed outer footprint or did not resize its cells');
   const cards=await page.locator('.operation-flow .tensor-stage').all();
   if(cards.length>=2){
    const left=await cards[0].boundingBox(),right=await cards.at(-1).boundingBox();

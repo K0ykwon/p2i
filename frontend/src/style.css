@@ -38,7 +38,9 @@
 .tensor-sample .sample-caption strong{color:#173c48;font-size:12px}
 .tensor-sample .grid-description{font-size:10px;line-height:1.5;margin:5px 0 12px;color:#597783}
 .tensor-sample .heatmap{width:100%;max-width:350px;gap:2px;margin-inline:auto}
-.tensor-sample .heatmap-cell{width:100%;aspect-ratio:1;padding:0;min-width:0;border:0;border-radius:2px;box-shadow:inset 0 0 0 1px #24504a0e;cursor:crosshair}
+.tensor-sample .heatmap-strip{height:36px}
+.tensor-sample .heatmap-scalar{width:42px;height:42px;margin-left:0}
+.tensor-sample .heatmap-cell{width:100%;height:100%;padding:0;min-width:0;border:0;border-radius:2px;box-shadow:inset 0 0 0 1px #24504a0e;cursor:crosshair}
 .tensor-sample .heatmap-cell:disabled{opacity:1;background:repeating-linear-gradient(45deg,#eceff0,#eceff0 3px,#fafafa 3px,#fafafa 6px)!important;cursor:default}
 .tensor-sample .heatmap-legend{max-width:350px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:6px;margin:10px auto 0;color:#58737a;font:10px ui-monospace,monospace}
 .tensor-sample .heatmap-gradient{height:8px;border-radius:6px;background:linear-gradient(90deg,#c06d40,#f5f9f8 50%,#10897d)}

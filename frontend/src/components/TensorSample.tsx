@@ -38,8 +38,11 @@ export function TensorSample({tensor,sample}:{tensor:Tensor;sample?:Sample}){
  return <div className="tensor-sample">
   <div className="sample-caption"><strong>{summary}</strong><span>{sample!.elements.toLocaleString()} elements</span></div>
   <p className="grid-description">Original shape {originalShape}. {method}</p>
-  <div className="heatmap" role="group" aria-label={`Tensor heatmap for ${tensor.id}`}
-       style={{gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`}}>
+  <div className={`heatmap${!grid||tensor.shape.length===1?' heatmap-strip':tensor.shape.length===0?' heatmap-scalar':''}`}
+       role="group" aria-label={`Tensor heatmap for ${tensor.id}`}
+       style={{gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`,
+               gridTemplateRows:`repeat(${cells.length},minmax(0,1fr))`,
+               aspectRatio:grid&&tensor.shape.length>=2?`${columns} / ${Math.min(columns,cells.length)}`:undefined}}>
    {cells.flatMap((row,r)=>row.map((value,c)=><button key={`${r}-${c}`} type="button"
        className="heatmap-cell" disabled={value===null}
        aria-label={`Grid row ${r+1} column ${c+1}: ${value===null?'no finite values':`mean ${value}`}`}

@@ -6,11 +6,11 @@ Local verification environment: Linux x86-64, Python 3.12.14, PyTorch 2.6.0+cpu,
 
 | Check | Result |
 |---|---|
-| Full `python -m pytest -q` | 109 passed, 1 skipped; one upstream Starlette deprecation warning |
+| Full `python -m pytest -q` | 110 passed, 1 skipped; one upstream Starlette deprecation warning |
 | CUDA trace smoke | Skipped: CUDA unavailable |
 | `npm ci` and production TypeScript/Vite build | Passed |
 | Frontend pure-function tests | 3 passed: runtime ordering, row-major capture bounds, shuffled DAG layering |
-| Existing browser scenarios | All 8 passed: legacy explorer, 3 Phase 2 demos, Phase 3 skill flow, 3 progressive UX demos; the latter also verify bounded whole-tensor grids, no default raw prefix storage and aligned input/output layout |
+| Existing browser scenarios | All 8 passed: legacy explorer, 3 Phase 2 demos, Phase 3 skill flow, 3 progressive UX demos; the latter also verify bounded whole-tensor grids, no default raw prefix storage, aligned input/output layout and a fixed outer footprint with rectangular cells for a 32×16 plane |
 | New microscope browser scenario | Passed: playback/pause/restart, reduced motion, drag persistence, whole-tensor heatmaps, actual before/after edit and synchronized operation/tensor inspection |
 | Large-graph browser scenario | Passed: actual 500/1,000/3,000-operation traces, local graph bounded to ≤7 operations, next-step response recorded |
 | Distribution | Wheel and source distribution built with frontend assets |

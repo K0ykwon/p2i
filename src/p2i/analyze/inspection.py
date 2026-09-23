@@ -47,7 +47,11 @@ class RuntimeInspection:
                 else:
                     filled=filled.reshape(plane.shape[-2:])
                     coverage=valid.float().reshape(plane.shape[-2:])
-                height=min(self.grid_size,filled.shape[0]);width=min(self.grid_size,filled.shape[1])
+                # Downsample both axes by the same factor. A 32x16 plane
+                # becomes 16x8 rather than an apparently square 16x16 grid.
+                scale=max(1,filled.shape[0]/self.grid_size,filled.shape[1]/self.grid_size)
+                height=max(1,min(self.grid_size,round(filled.shape[0]/scale)))
+                width=max(1,min(self.grid_size,round(filled.shape[1]/scale)))
                 pooled=torch.nn.functional.adaptive_avg_pool2d(filled[None,None],(height,width))[0,0]
                 counts=torch.nn.functional.adaptive_avg_pool2d(coverage[None,None],(height,width))[0,0]
                 grid=torch.where(counts>0,pooled/counts.clamp_min(1e-12),0)

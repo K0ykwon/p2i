@@ -33,6 +33,18 @@ def test_leading_axes_are_explicitly_averaged_and_odd_sized_tiles_cover_every_el
     assert result['grid']['finite_elements'] == 32
 
 
+def test_rectangular_source_preserves_axis_ratio_in_bounded_grid():
+    square = inspect(torch.ones(32, 32))['grid']
+    tall = inspect(torch.arange(32, dtype=torch.float32)[:, None].expand(32, 16))['grid']
+    wide = inspect(torch.ones(16, 32))['grid']
+    assert square['shape'] == [16, 16]
+    assert tall['shape'] == [16, 8]
+    assert wide['shape'] == [8, 16]
+    assert tall['values'][0] == [0.5] * 8
+    assert tall['values'][-1] == [30.5] * 8
+    assert tall['finite_elements'] == 32 * 16
+
+
 def test_scalar_vector_non_finite_and_safety_threshold():
     assert inspect(torch.tensor(2.0))['grid']['values'] == [[2.0]]
     vector = inspect(torch.arange(12, dtype=torch.float32), grid_size=4)
