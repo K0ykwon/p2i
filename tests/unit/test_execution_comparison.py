@@ -19,6 +19,8 @@ def test_observed_comparison_keeps_before_until_success():
     assert comparison['after']['revision']==1
     assert comparison['diff']['parameters']=={'before':20,'after':16}
     assert any(c['path']=='0' for c in comparison['diff']['modules'])
+    assert comparison['diff']['tensors']
+    assert any(change['after']['grid'] is not None for change in comparison['diff']['tensors'])
     before=h.previous_observation
     # A failed retrace may not publish a new before/after pair.
     h._args=(torch.ones(2,7),)

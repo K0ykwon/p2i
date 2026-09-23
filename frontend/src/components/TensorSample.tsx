@@ -1,27 +1,57 @@
-import {useEffect,useState} from 'react';
-import {sampleIndex} from '../execution';
 import type {Tensor} from '../types/model';
-export interface Sample {elements:number;values:(number|null)[]|null;message:string;min?:number|null;max?:number|null;mean?:number|null;std?:number|null}
+
+export interface GridSummary {
+ shape:[number,number];
+ values:(number|null)[][];
+ aggregation:'mean';
+ source_shape:number[];
+ spatial_axes:number[];
+ reduced_axes:number[];
+ finite_elements:number;
+}
+export interface Sample {
+ elements:number;
+ values:(number|null)[]|null; // Older bounded inspection sidecars only.
+ grid?:GridSummary|null;
+ message:string;
+ min?:number|null;max?:number|null;mean?:number|null;std?:number|null;
+}
 export interface Inspection {tensors:Record<string,Sample>;operations:Record<string,unknown>}
 export const emptyInspection:Inspection={tensors:{},operations:{}};
+
 export function TensorSample({tensor,sample}:{tensor:Tensor;sample?:Sample}){
- const [hover,setHover]=useState<number|null>(null);
- const [coordinates,setCoordinates]=useState<Record<number,number>>({});
- useEffect(()=>{setCoordinates({});setHover(null)},[tensor.id]);
- const values=sample?.values?.slice(0,64);
- if(!values?.length)return <div className="sample-omitted">Values unavailable · [{tensor.shape.join(', ')}]{sample?` · ${sample.elements.toLocaleString()} elements`:''}<small>{sample?.message??'Enable bounded capture in Edit, then Build & Re-trace.'}</small></div>;
- const complete=sample!.elements===values.length;
- const dimensions=tensor.shape;
- const concrete=dimensions.every(d=>typeof d==='number'&&Number.isInteger(d)&&d>=0);
- const dims=concrete?dimensions as number[]:[];
- const rank=dimensions.length;
- const matrix=concrete&&rank>=2;
- const cols=matrix?Math.max(1,Math.min(8,dims[rank-1])):Math.min(8,values.length);
- const rows=matrix?Math.min(8,dims[rank-2]):1;
- const cells=matrix?Array.from({length:rows*cols},(_,i)=>{
-   const coords=dims.map((_,axis)=>coordinates[axis]??0);coords[rank-2]+=Math.floor(i/cols);coords[rank-1]+=i%cols;
-   return sampleIndex(dims,coords,values.length);
- }):values.map((_,i)=>i);
- const scale=Math.max(1e-12,...values.filter((v):v is number=>v!==null).map(Math.abs));
- return <div className="tensor-sample"><div className="sample-caption"><strong>{rank===0?'Scalar':rank===1?'Vector strip':matrix?rank===2?'Matrix heatmap':'2D slice · last two axes':'Flat prefix (symbolic shape)'}</strong><span>{values.length} / {sample!.elements.toLocaleString()} values</span></div><p>Original shape [{dimensions.join(', ')}] · {complete?'complete capture':'sampled / truncated flat prefix'}. {matrix&&'At most 8 × 8 cells; uncaptured coordinates remain unavailable.'}</p>{matrix&&<div className="slice-controls">{dims.map((d,axis)=><label key={axis}>Axis {axis} {axis>=rank-2?'start':'index'}<input type="number" min="0" max={Math.max(0,d-1)} value={coordinates[axis]??0} onChange={e=>setCoordinates(c=>({...c,[axis]:Math.max(0,Math.min(d-1,Number(e.target.value)))}))}/></label>)}</div>}<div className="heatmap" role="group" aria-label={`Captured values for ${tensor.id}`} style={{gridTemplateColumns:`repeat(${cols},minmax(24px,1fr))`}}>{cells.map((index,cell)=>{const i=index??-1;const v=index===null?null:values[index];return <button key={cell} disabled={index===null} onMouseEnter={()=>setHover(i)} onMouseLeave={()=>setHover(null)} onFocus={()=>setHover(i)} onBlur={()=>setHover(null)} aria-label={`Value ${i}: ${v??'non-finite'}`} style={{background:v===null?'#eee':`rgba(${v<0?'191,111,58':'18,132,132'},${.08+.67*Math.abs(v)/scale})`}} title={`flat[${i}] = ${v??'non-finite'}`}>{index===null?'—':v===null?'?':Math.abs(v)<.01?v.toExponential(0):v.toFixed(1)}</button>})}</div><p className="sample-readout">{hover===null?'Hover or focus a cell to inspect its recorded value.':`flat[${hover}] = ${values[hover]??'non-finite'}`}</p><div className="sample-stats">{(['min','max','mean','std'] as const).map(k=><span key={k}>{k} <b>{sample![k]==null?'—':sample![k]!.toPrecision(3)}</b></span>)}</div><small>Teal positive · amber negative. Color scale ±{scale.toPrecision(3)} for this sample. Statistics describe the captured tensor.</small></div>;
+ const grid=sample?.grid;
+ const legacy=sample?.values?.slice(0,64);
+ const cells=grid?.values??(legacy?.length?[legacy]:null);
+ const originalShape=`[${tensor.shape.map(dim=>dim??'?').join(', ')}]`;
+ if(!cells)return <div className="sample-omitted">Heatmap unavailable · {originalShape}{sample?` · ${sample.elements.toLocaleString()} elements`:''}<small>{sample?.message??'Enable whole-tensor CPU heatmaps in Edit, then Build & Re-trace.'}</small></div>;
+ const numeric=cells.flat().filter((value):value is number=>value!==null);
+ const maximum=Math.max(0,...numeric.map(Math.abs));
+ const columns=Math.max(0,...cells.map(row=>row.length));
+ const color=(value:number|null)=>value===null?'#eef1f2':maximum===0?'#f5f9f8':
+  `rgba(${value<0?'192,109,64':'16,137,125'},${(.08+.82*Math.abs(value)/maximum).toFixed(3)})`;
+ const summary=grid?`${grid.shape[0]} × ${grid.shape[1]} whole-tensor mean grid`:`Legacy prefix · ${legacy!.length} / ${sample!.elements.toLocaleString()} values`;
+ const method=grid?grid.reduced_axes.length?
+  `Axes ${grid.reduced_axes.join(', ')} averaged; axes ${grid.spatial_axes.join(', ')} pooled.`:
+  `Axes ${grid.spatial_axes.join(', ')||'scalar'} pooled.`:
+  'Only the saved prefix is available in this older inspection.';
+ return <div className="tensor-sample">
+  <div className="sample-caption"><strong>{summary}</strong><span>{sample!.elements.toLocaleString()} elements</span></div>
+  <p className="grid-description">Original shape {originalShape}. {method}</p>
+  <div className="heatmap" role="group" aria-label={`Tensor heatmap for ${tensor.id}`}
+       style={{gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`}}>
+   {cells.flatMap((row,r)=>row.map((value,c)=><button key={`${r}-${c}`} type="button"
+       className="heatmap-cell" disabled={value===null}
+       aria-label={`Grid row ${r+1} column ${c+1}: ${value===null?'no finite values':`mean ${value}`}`}
+       title={value===null?'No finite values':`Mean ${value}`}
+       style={{background:color(value)}}/>))}
+  </div>
+  <div className="heatmap-legend" aria-label="Negative means orange; zero neutral; positive means teal">
+   <span>−{maximum.toPrecision(2)}</span><div className="heatmap-gradient"/><span>0</span><span>+{maximum.toPrecision(2)}</span>
+  </div>
+  <details className="heatmap-metadata"><summary>Statistics and coverage</summary>
+   <p>{grid?`${grid.finite_elements.toLocaleString()} / ${sample!.elements.toLocaleString()} finite elements. ${sample!.message}`:sample!.message}</p>
+   <div className="sample-stats">{(['min','max','mean','std'] as const).map(key=><span key={key}>{key} <b>{sample![key]==null?'—':sample![key]!.toPrecision(3)}</b></span>)}</div>
+  </details>
+ </div>;
 }

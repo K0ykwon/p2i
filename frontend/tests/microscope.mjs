@@ -42,7 +42,7 @@ try{
  await page.getByRole('button',{name:'Explore norm',exact:true}).click();
  await page.getByRole('button',{name:'Edit',exact:true}).click();
  // Capture both observations before changing architecture.
- await page.getByRole('checkbox',{name:/Capture bounded CPU/}).check();
+ await page.getByRole('checkbox',{name:/Capture bounded whole-tensor CPU/}).check();
  await page.getByRole('button',{name:'Build & Re-trace',exact:true}).click();
  await expect(page.locator('.validation-result')).toContainText('Validation passed');
  await page.getByLabel('Constructor parameter',{exact:true}).selectOption('eps');
@@ -63,10 +63,10 @@ try{
  await page.screenshot({path:`${out}/observed-comparison.png`,fullPage:true});
  await page.getByRole('button',{name:'Model root',exact:true}).click();
  await page.getByRole('button',{name:'Computation',exact:true}).click();
- await expect(page.locator('.slice-controls').first()).toBeVisible();
- const axis=page.locator('.slice-controls').first().getByRole('spinbutton').first();
- await axis.fill('1');
- await expect(page.locator('.heatmap').first().getByRole('button').first()).toBeDisabled();
+ await expect(page.locator('.heatmap').first()).toBeVisible();
+ await expect(page.locator('.heatmap-cell').first()).toBeEnabled();
+ await expect(page.locator('.grid-description').first()).toContainText('Original shape');
+ await expect(page.locator('.heatmap-legend').first()).toBeVisible();
  await page.screenshot({path:`${out}/operation-microscope.png`,fullPage:true});
  // Large fixtures were emitted by the actual Phase 1 tracer, not graph templates.
  for(const size of [500,1000,3000]){
@@ -83,5 +83,5 @@ try{
  }
  expect(errors).toEqual([]);
  await writeFile(`${out}/performance.json`,JSON.stringify({browser:browser.version(),viewport:[1800,1200],notes:'Single local browser pass; includes network and Playwright wait overhead, not a performance guarantee.',measurements},null,2));
- console.log('PASS microscope: actual operation playback, pause/restart, reduced motion, drag persistence, rank-aware capture, observed comparison, 500/1000/3000-op local exploration');
+ console.log('PASS microscope: actual operation playback, pause/restart, reduced motion, drag persistence, whole-tensor grids, observed comparison, 500/1000/3000-op local exploration');
 }finally{await context.close();await browser.close()}

@@ -10,7 +10,11 @@ The Phase 1 analyzer inspects the actual supplied model. Phase 2 adds determinis
 
 Run `p2i demo transformer --edit` and open the printed local URL. Start with **Explore**, drill into a module, then open **Runtime**. Playback follows observed ATen operations, highlighting inputs, the active operation and outputs. Pause to inspect or drag nodes. Export/FX graphs remain static evidence.
 
-**Computation** focuses on one operation and at most six neighbors at readable scale. **Edit → Build & Re-trace → Compare** presents the previous and current successful observations, constructor changes, aligned output shapes/samples and added/removed dependency paths. Proposed edits do not replace observed results. Enable bounded CPU capture explicitly to see scalar, vector or matrix/slice values; uncaptured coordinates remain unavailable.
+**Computation** focuses on one operation and at most six neighbors at readable scale. **Edit → Build & Re-trace → Compare** presents the previous and current successful observations, constructor changes, aligned output shapes/heatmaps and added/removed dependency paths. Proposed edits do not replace observed results. Enable opt-in CPU heatmaps to display a bounded whole-tensor mean grid; raw values are not retained. Heatmaps are unavailable above the configured size limit.
+
+![Observed TinyTransformer layer-normalization input and output represented as aligned rectangular mean heatmaps](docs/tensor-heatmap-flow.png)
+
+The screenshot is from the offline TinyTransformer demo after opt-in capture. Each tile is a mean over a region of the actual tensor; leading axes are averaged, not interpreted as semantic dimensions.
 
 See [visual conventions and limitations](docs/COMPUTATION_EXPLORER.md), [the Transformer showcase workflow](docs/SHOWCASE.md), [performance and study protocols](docs/RESEARCH_EVALUATION.md), and [development/test instructions](CONTRIBUTING.md). Node.js is required to develop/build the frontend, not to install a prebuilt wheel. Release artifacts are built manually through GitHub Actions; no package publishing is enabled.
 
@@ -218,7 +222,7 @@ trusted; in-process Python skill application requires an explicit local opt-in.
 
 Explore now draws actual observed tensor routes between discovered modules. Computation
 opens a readable local neighborhood with a central input→operation→output explanation;
-Raw graph remains available. Opt-in captured tensor samples render as explicitly labeled
+Raw graph remains available. Opt-in whole-tensor summaries render as explicitly labelled
 heatmaps. Runtime playback highlights the recorded module and shows that call's real
 operations. See [visual exploration](docs/VISUAL_EXPLORATION.md) for bounds, evidence
 semantics and browser checks. Run `p2i demo transformer --edit` to try it.

@@ -33,7 +33,12 @@ def compare_observations(before,after):
         for op in ir['operations']:
             if op['id'] not in keys:continue
             for slot,tid in enumerate(op['output_tensor_ids']):
-                t=tensors[tid];result[(keys[op['id']],slot)]={'shape':t['shape'],'dtype':t['dtype'],'sample':inspection.get('tensors',{}).get(tid,{}).get('values')}
+                t=tensors[tid];capture=inspection.get('tensors',{}).get(tid,{})
+                result[(keys[op['id']],slot)]={
+                    'shape':t['shape'],'dtype':t['dtype'],
+                    'grid':capture.get('grid'),
+                    'sample':capture.get('values'),  # Older bounded sidecars.
+                }
         return result
     ao=outputs(a,ak,before['inspection']);bo=outputs(b,bk,after['inspection'])
     tensors=[{'key':str(k),'before':ao[k],'after':bo[k]} for k in sorted(ao.keys()&bo.keys()) if ao[k]!=bo[k]]
