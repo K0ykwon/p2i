@@ -1,5 +1,15 @@
 # p2i — PyTorch to interactive inspection
 
+> [!IMPORTANT]
+> **Legacy monorepo.** P2I has been split into independently packaged repositories:
+> [p2i-core](https://github.com/PtwoI/p2i-core) (tracing, IR, Harness and skills),
+> [p2i-gui](https://github.com/PtwoI/p2i-gui) (local browser and API),
+> [p2i-cli](https://github.com/PtwoI/p2i-cli) (terminal commands), and
+> [p2i-sdk](https://github.com/PtwoI/p2i-sdk) (optional Python API client).
+> Install from these repositories for new development. The source, examples,
+> documentation and commit history below are preserved as a historical snapshot.
+> The split packages have not yet completed cross-package PyTorch runtime and browser acceptance testing.
+
 [![CI](https://github.com/K0ykwon/p2i/actions/workflows/ci.yml/badge.svg)](https://github.com/K0ykwon/p2i/actions/workflows/ci.yml)
 
 A local-first research prototype: **instantiated `nn.Module` + example inputs → analysis → typed Model IR → local browser explorer**.
